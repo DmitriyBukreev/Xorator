@@ -14,6 +14,11 @@
 	"    -k <kcmd>\tspecifies command to read key from\n" \
 	"    -o <file>\tspecifies location of output file\n" \
 
+#define HELP_MSG \
+	"Usage:\n" \
+	"    xorator xor [options]\n" \
+	"    xorator key [options]\n"
+
 #define TOOMANYARGS -304
 int parser(char *src, char **dst, int length)
 {
@@ -129,10 +134,6 @@ void xor(char *icmd, char *kcmd, char *ofile)
 	}
 	HANDLE_ERROR(res_in, -1);
 	HANDLE_ERROR(res_key, -1);
-	if (res_key == 1)
-		printf("Key was longer than input\n");
-	else if (res_in == 1)
-		printf("Input was longer than key\n");
 }
 
 int main(int argn, char **argv)
@@ -191,6 +192,7 @@ int main(int argn, char **argv)
 			return -1;
 		}
 		xor(icmd, kcmd, ofile);
-	}
+	} else
+		printf(HELP_MSG);
 	return 0;
 }
