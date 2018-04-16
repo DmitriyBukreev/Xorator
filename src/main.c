@@ -29,6 +29,7 @@ int parser(char *src, char **dst, int length)
 		dst[iter] = token;
 		if (iter == length)
 			return TOOMANYARGS;
+
 		iter++;
 		token = strtok(NULL, " \t\n");
 	}
@@ -62,13 +63,16 @@ int fork_out(char *cmd)
 			return TOOMANYARGS;
 		execvp(args[0], args);
 		// Error
+		perror("Error");
 		exit(EXIT_FAILURE);
 	}
 	// Parent
 	if (pid == -1)
 		return -1;
+
 	if (close(pipes[1]) == -1)
 		return -1;
+
 	return pipes[0];
 }
 
@@ -96,7 +100,7 @@ void key(char *ifile, char *cmd, char *ofile)
 	}
 
 	srand(time(NULL));
-	while (c = read(in, &c, 1)) {
+	while ((c = read(in, &c, 1))) {
 		HANDLE_ERROR(c, -1);
 		c = rand()%256;
 		write(out, &c, 1);
@@ -136,6 +140,7 @@ void xor(char *icmd, char *kcmd, char *ofile)
 	HANDLE_ERROR(res_key, -1);
 }
 
+#define WRONG_OPTION 1
 int main(int argn, char **argv)
 {
 	int opt;		// Result from getopt
@@ -157,20 +162,22 @@ int main(int argn, char **argv)
 				ofile = optarg;
 				break;
 			case '?':
-				f_wrong = 1;
+				f_wrong = WRONG_OPTION;
 			}
 		}
 		// Errors:
 		// getopt() returns '?'
 		// both ifile and icmd provided
 		// neither ifile nor icmd provided
-		if (f_wrong || ifile == icmd
-			|| ifile != NULL && icmd != NULL) {
+		if (f_wrong == WRONG_OPTION || ifile == icmd
+			|| (ifile != NULL && icmd != NULL)) {
 			printf(HELP_MSG_KEY);
 			return -1;
 		}
 		key(ifile, icmd, ofile);
+
 	} else if (argn > 2 && !strcmp(argv[1], "xor")) {
+
 		icmd = kcmd = ofile = NULL;
 		while ((opt = getopt(argn, argv, "i:k:o:")) != -1) {
 			switch (opt) {
@@ -184,10 +191,10 @@ int main(int argn, char **argv)
 				ofile = optarg;
 				break;
 			case '?':
-				f_wrong = 1;
+				f_wrong = WRONG_OPTION;
 			}
 		}
-		if (f_wrong || icmd == NULL || kcmd == NULL) {
+		if (f_wrong == WRONG_OPTION || icmd == NULL || kcmd == NULL) {
 			printf(HELP_MSG_XOR);
 			return -1;
 		}

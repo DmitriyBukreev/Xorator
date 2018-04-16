@@ -1,6 +1,6 @@
 SRC = $(wildcard src/*.c)
 OBJ = $(SRC:src/%.c=obj/%.o)
-CFLAGS = -fsanitize=address -include src/precompiled.h -c
+CFLAGS = -fsanitize=address -Wall -include src/precompiled.h -c
 LDFLAGS = -fsanitize=address -o
 
 all: dirs xorator
